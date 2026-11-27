@@ -1,0 +1,605 @@
+/* ============================================================
+   Expense & Budget Visualizer — stylesheet
+   Section: Theme tokens (custom properties)
+   Light values on :root, dark overrides on body.dark.
+   Every color used anywhere in this file must reference one of
+   these variables — no raw colors outside these two blocks.
+   ============================================================ */
+
+:root {
+  --bg: #f8f9fa;
+  --surface: #ffffff;
+  --text: #212529;
+  --text-muted: #6c757d;
+  --accent: #4361ee;
+  --accent-contrast: #ffffff;
+  --danger: #ef233c;
+  --danger-soft: rgba(239, 35, 60, 0.12);
+  --border: #dee2e6;
+  --success: #2b9348;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+body.dark {
+  --bg: #121212;
+  --surface: #1e1e1e;
+  --text: #e0e0e0;
+  --text-muted: #9e9e9e;
+  --accent: #7b8cde;
+  --accent-contrast: #121212;
+  --danger: #ff6b6b;
+  --danger-soft: rgba(255, 107, 107, 0.18);
+  --border: #333333;
+  --success: #57cc99;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+/* ============================================================
+   Section: Base reset, layout, container, cards, breakpoints
+   Mobile-first, targeting 360px minimum width.
+   ============================================================ */
+
+/* --- Box-sizing reset ------------------------------------ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* --- Base body ------------------------------------------- */
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 16px;
+  background: var(--bg);
+  color: var(--text);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* --- Page container -------------------------------------- */
+.container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 16px;
+  display: grid;
+  gap: 16px;
+}
+
+/* --- Card ------------------------------------------------ */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: var(--shadow);
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+/* --- App header ------------------------------------------ */
+.app-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* --- List header (stacked on mobile) --------------------- */
+.list-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* --- Touch-friendly controls (min 44px hit area) --------- */
+button,
+input,
+select {
+  min-height: 44px;
+}
+
+/* --- Hidden attribute always wins ------------------------ */
+[hidden] {
+  display: none !important;
+}
+
+/* ============================================================
+   Responsive breakpoints
+   ============================================================ */
+
+/* 600px — tablet portrait and wider */
+@media (min-width: 600px) {
+  #transactionForm .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .chart-container {
+    height: 320px;
+  }
+
+  .list-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+/* 800px — desktop: two-column card grid */
+@media (min-width: 800px) {
+  .container {
+    grid-template-columns: 1fr 1fr;
+    grid-auto-flow: dense;
+  }
+
+  .total-card,
+  .list-card {
+    grid-column: span 2;
+  }
+}
+
+/* ============================================================
+   Section: Toggle switch
+   Hidden checkbox input overlaid on a styled track + knob.
+   The knob slides via transform; focus ring applies to the
+   visible .toggle-track via adjacent-sibling selector.
+   ============================================================ */
+
+.toggle-switch {
+  position: relative;
+  display: inline-flex;
+}
+
+.toggle-switch input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.toggle-track {
+  width: 48px;
+  height: 26px;
+  border-radius: 13px;
+  background: var(--border);
+  transition: background-color 0.3s;
+  position: relative;
+}
+
+.toggle-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--surface);
+  transition: transform 0.3s ease;
+}
+
+.toggle-switch input:checked + .toggle-track {
+  background: var(--accent);
+}
+
+.toggle-switch input:checked + .toggle-track .toggle-knob {
+  transform: translateX(22px);
+}
+
+/* ============================================================
+   Section: Progress bar (spending limit)
+   ============================================================ */
+
+.limit-progress {
+  height: 10px;
+  border-radius: 5px;
+  background: var(--border);
+  overflow: hidden;
+  margin-top: 12px;
+}
+
+.limit-progress-fill {
+  height: 100%;
+  width: 0;
+  background: var(--accent);
+  border-radius: 5px;
+  transition: width 0.3s ease, background-color 0.3s;
+}
+
+.limit-progress-fill.over {
+  background: var(--danger);
+}
+
+/* ============================================================
+   Section: Toast notification
+   Slides up from below the viewport via transform transition.
+   ============================================================ */
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translate(-50%, 120%);
+  background: var(--text);
+  color: var(--bg);
+  padding: 12px 20px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 1000;
+  transition: transform 0.3s ease, opacity 0.3s;
+  opacity: 0;
+}
+
+.toast.visible {
+  transform: translate(-50%, 0);
+  opacity: 1;
+}
+
+.toast-undo {
+  background: transparent;
+  border: 1px solid currentColor;
+  color: inherit;
+  border-radius: 6px;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+/* ============================================================
+   Section: Transaction list
+   Fixed max-height with scroll; .over-limit row tint.
+   ============================================================ */
+
+.transaction-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.transaction-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 4px;
+  border-bottom: 1px solid var(--border);
+  transition: background-color 0.3s;
+}
+
+.transaction-list li.over-limit {
+  background: var(--danger-soft);
+}
+
+/* ============================================================
+   Section: Total balance
+   Large figure; turns red when over the spending limit.
+   ============================================================ */
+
+.total-balance {
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.total-balance.over-limit {
+  color: var(--danger);
+}
+
+/* ============================================================
+   Section: Chart container
+   Fixed height with absolutely-positioned overlays for the
+   "no data" and CDN-fallback states.
+   The [hidden] rule ensures hidden always beats display: flex.
+   ============================================================ */
+
+[hidden] {
+  display: none !important;
+}
+
+.chart-container {
+  position: relative;
+  height: 280px;
+}
+
+.chart-container canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.chart-no-data,
+.chart-fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* ============================================================
+   Section: Smooth transitions for theme and list updates
+   Every interactive and content element that uses a theme-
+   variable color transitions smoothly when the dark class is
+   toggled on <body>.
+   ============================================================ */
+
+/* Inputs and selects: background, text color, and border all
+   change on theme toggle — transition them together. */
+input,
+select,
+textarea {
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0 12px;
+  font-size: 1rem;
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+/* Buttons */
+button {
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s, opacity 0.3s;
+}
+
+/* Primary action button */
+.btn-primary {
+  background: var(--accent);
+  color: var(--accent-contrast);
+  border: none;
+  border-radius: 8px;
+  padding: 0 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  opacity: 0.88;
+}
+
+/* Secondary action button (Add Category) */
+.btn-secondary {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 0 16px;
+  font-size: 1rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+.btn-secondary:hover {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+/* Delete button on transaction rows */
+.delete-btn {
+  margin-left: auto;
+  flex-shrink: 0;
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+  border-radius: 6px;
+  padding: 2px 10px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+.delete-btn:hover {
+  background: var(--danger);
+  color: var(--surface);
+}
+
+/* Form error regions: color transitions with theme */
+.form-errors {
+  color: var(--danger);
+  font-size: 0.9rem;
+  min-height: 1.2em;
+  transition: color 0.3s;
+}
+
+/* Limit warning (always in DOM; text set/cleared by JS) */
+.limit-warning {
+  color: var(--danger);
+  font-size: 0.9rem;
+  min-height: 1.2em;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+/* Category add row layout */
+.category-add {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+/* Category chip list */
+.category-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.category-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 0.9rem;
+  transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+}
+
+/* Colored dot inside each category chip */
+.category-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.category-name {
+  color: var(--text);
+  transition: color 0.3s;
+}
+
+/* Category delete button (small ✕ inside a chip) */
+.category-delete {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0 2px;
+  font-size: 0.8rem;
+  min-height: unset;
+  line-height: 1;
+  transition: color 0.3s;
+}
+
+.category-delete:hover {
+  color: var(--danger);
+}
+
+/* Summary section */
+.summary-body {
+  margin-top: 12px;
+  color: var(--text);
+  transition: color 0.3s;
+}
+
+.summary-body p {
+  margin: 4px 0;
+}
+
+.summary-breakdown {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+}
+
+.summary-breakdown li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  transition: color 0.3s, border-color 0.3s;
+}
+
+.summary-cat-name {
+  color: var(--text);
+  transition: color 0.3s;
+}
+
+.summary-cat-amount {
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  transition: color 0.3s;
+}
+
+/* Transaction item text spans */
+.tx-name {
+  flex: 1;
+  font-weight: 500;
+  color: var(--text);
+  transition: color 0.3s;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tx-amount {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--text);
+  transition: color 0.3s;
+  flex-shrink: 0;
+}
+
+.tx-category {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  transition: color 0.3s;
+  flex-shrink: 0;
+}
+
+.tx-date {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  transition: color 0.3s;
+  flex-shrink: 0;
+}
+
+/* Empty state messages in list and summary */
+.empty-state {
+  color: var(--text-muted);
+  font-style: italic;
+  padding: 16px 4px;
+  text-align: center;
+  transition: color 0.3s;
+}
+
+/* Form row: label + input stacked */
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.form-row label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: color 0.3s;
+}
+
+/* Section headings */
+h1, h2 {
+  color: var(--text);
+  margin: 0 0 12px;
+  transition: color 0.3s;
+}
+
+h1 {
+  font-size: 1.3rem;
+}
+
+h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+/* ============================================================
+   Section: Focus styles
+   Visible focus ring on all interactive elements for keyboard
+   navigation. Toggle input is hidden, so the ring targets the
+   visible .toggle-track via adjacent-sibling selector.
+   ============================================================ */
+
+:where(a, button, input, select, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.toggle-switch input:focus-visible + .toggle-track {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

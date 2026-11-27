@@ -5,6 +5,15 @@
    Every color used anywhere in this file must reference one of
    these variables — no raw colors outside these two blocks.
    ============================================================ */
+.toggle-track {
+  display: block;
+  width: 48px;
+  height: 26px;
+  border-radius: 13px;
+  background: var(--border);
+  transition: background-color 0.3s;
+  position: relative;
+}
 
 :root {
   --bg: #f8f9fa;

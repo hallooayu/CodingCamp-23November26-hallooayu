@@ -1,307 +1,140 @@
 /* ==========================================================
-   POLISH LAYER: paste this at the very END of css/style.css
-   It only overrides looks. It does not touch the toggle
-   switch internals, toast position, or any JS-related class.
+   GLASSMORPHISM LAYER: paste at the very END of css/style.css
+   (after the polish block). Pure CSS, no JS changes needed.
    To undo: delete everything from this comment to the end.
    ========================================================== */
 
+/* ---------- Background: soft gradient + floating blobs ---------- */
 body {
-  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #c7d2fe 0%, #fbcfe8 50%, #fde68a 100%);
+  background-attachment: fixed;
 }
 
+body.dark {
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 55%, #312e81 100%);
+  background-attachment: fixed;
+}
+
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  width: 55vmax;
+  height: 55vmax;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.55;
+  pointer-events: none;
+  animation: float-blob 18s ease-in-out infinite alternate;
+}
+
+body::before {
+  top: -20vmax;
+  left: -15vmax;
+  background: radial-gradient(circle, #818cf8, transparent 70%);
+}
+
+body::after {
+  right: -20vmax;
+  bottom: -20vmax;
+  background: radial-gradient(circle, #f472b6, transparent 70%);
+  animation-duration: 24s;
+  animation-direction: alternate-reverse;
+}
+
+body.dark::before {
+  background: radial-gradient(circle, #6366f1, transparent 70%);
+  opacity: 0.45;
+}
+
+body.dark::after {
+  background: radial-gradient(circle, #a855f7, transparent 70%);
+  opacity: 0.4;
+}
+
+@keyframes float-blob {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(6vmax, 4vmax) scale(1.15); }
+}
+
+/* ---------- Glass cards ---------- */
 .container {
-  padding: 20px 16px 48px;
-  gap: 20px;
+  position: relative;
+  z-index: 1;
 }
 
-/* ---------- Header ---------- */
-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 4px 2px 0;
-}
-
-header h1 {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-}
-
-/* ---------- Cards ---------- */
 .card {
-  padding: 20px;
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: 16px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(160%);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
 }
 
-.card h2 {
-  margin: 0 0 16px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-muted, #6b7280);
+body.dark .card {
+  background: rgba(30, 32, 60, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
 }
 
-/* ---------- Total balance ---------- */
-#totalBalance {
-  display: block;
-  margin: 0;
-  font-size: clamp(2rem, 8vw, 2.75rem);
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  color: var(--accent, #4f46e5);
+/* Browsers without backdrop-filter: make cards more solid so text stays readable */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .card {
+    background: rgba(255, 255, 255, 0.92);
+  }
+
+  body.dark .card {
+    background: rgba(30, 32, 60, 0.92);
+  }
 }
 
-#totalBalance.over-limit {
-  color: var(--danger, #dc2626);
-}
-
-#limitWarning {
-  margin: 8px 0 0;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--danger, #dc2626);
-}
-
-/* ---------- Forms ---------- */
-#transactionForm {
-  display: grid;
-  gap: 14px;
-}
-
-#transactionForm > div,
-#transactionForm .form-group,
-#transactionForm .form-row {
-  display: grid;
-  gap: 6px;
-}
-
-label {
-  display: block;
-  margin-bottom: 4px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-muted, #6b7280);
-}
-
+/* ---------- Inputs and list on glass ---------- */
 input[type="text"],
 input[type="number"],
 select {
-  width: 100%;
-  min-height: 46px;
-  padding: 10px 14px;
-  font: inherit;
-  color: var(--text, #111827);
-  background: var(--bg, #f9fafb);
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: 12px;
-  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.7);
 }
 
-input[type="text"]:focus,
-input[type="number"]:focus,
-select:focus {
-  outline: none;
-  border-color: var(--accent, #4f46e5);
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.18);
-}
-
-#transactionForm button[type="submit"],
-#addCategoryBtn {
-  min-height: 46px;
-  padding: 10px 20px;
-  font: inherit;
-  font-weight: 700;
-  color: var(--accent-contrast, #fff);
-  background: var(--accent, #4f46e5);
-  border: 0;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: transform 0.1s, filter 0.2s;
-}
-
-#transactionForm button[type="submit"]:hover,
-#addCategoryBtn:hover {
-  filter: brightness(1.1);
-}
-
-#transactionForm button[type="submit"]:active,
-#addCategoryBtn:active {
-  transform: scale(0.98);
-}
-
-#formErrors,
-#categoryErrors {
-  margin: 0;
-  font-size: 0.875rem;
-  color: var(--danger, #dc2626);
-}
-
-/* ---------- Transaction list ---------- */
-.list-header {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.list-header h2 {
-  margin: 0;
-}
-
-#sortSelect {
-  width: 100%;
-}
-
-#transactionList {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-#transactionList li {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 14px 12px;
-  border-bottom: 1px solid var(--border, #e5e7eb);
-  border-radius: 10px;
-  transition: background-color 0.2s;
-}
-
-#transactionList li:last-child {
-  border-bottom: 0;
+body.dark input[type="text"],
+body.dark input[type="number"],
+body.dark select {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 #transactionList li:hover {
-  background: var(--bg, #f9fafb);
+  background: rgba(255, 255, 255, 0.4);
 }
 
-#transactionList li.over-limit {
-  background: var(--danger-soft, #fee2e2);
+body.dark #transactionList li:hover {
+  background: rgba(255, 255, 255, 0.06);
 }
 
-.delete-btn {
-  flex-shrink: 0;
-  padding: 6px 12px;
-  font: inherit;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--danger, #dc2626);
-  background: transparent;
-  border: 1px solid var(--danger, #dc2626);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.2s, color 0.2s;
-}
-
-.delete-btn:hover {
-  color: #fff;
-  background: var(--danger, #dc2626);
-}
-
-/* ---------- Chart ---------- */
-#chartContainer {
-  position: relative;
-  height: 280px;
-}
-
-#chartNoData,
-#chartFallback {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  color: var(--text-muted, #6b7280);
-  font-size: 0.95rem;
-}
-
-/* ---------- Categories ---------- */
-#categoryList {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 14px 0 0;
-  padding: 0;
-  list-style: none;
+#transactionList li {
+  border-bottom-color: rgba(120, 120, 160, 0.18);
 }
 
 #categoryList > * {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  background: var(--bg, #f9fafb);
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.5);
+  border-color: rgba(255, 255, 255, 0.7);
 }
 
-/* ---------- Limit & summary ---------- */
+body.dark #categoryList > * {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
 .limit-progress {
-  height: 10px;
-  margin-top: 14px;
-  overflow: hidden;
-  background: var(--border, #e5e7eb);
-  border-radius: 999px;
+  background: rgba(120, 120, 160, 0.22);
 }
 
-.limit-progress-fill {
-  height: 100%;
-  background: var(--success, #16a34a);
-  border-radius: 999px;
-  transition: width 0.4s ease;
-}
-
-.limit-progress-fill.over {
-  background: var(--danger, #dc2626);
-}
-
-#summaryBody {
-  margin-top: 14px;
-  font-size: 0.95rem;
-}
-
-/* ---------- Toast (colors and shape only) ---------- */
-#toast {
-  padding: 12px 16px;
-  color: var(--bg, #fff);
-  background: var(--text, #111827);
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-}
-
-#toastUndo {
-  margin-left: 12px;
-  padding: 4px 10px;
-  font: inherit;
-  font-weight: 700;
-  color: inherit;
-  background: transparent;
-  border: 1px solid currentColor;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-/* ---------- Desktop ---------- */
-@media (min-width: 600px) {
-  .list-header {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  #sortSelect {
-    width: auto;
-    min-width: 200px;
+/* ---------- Accessibility: stop motion if the user asks ---------- */
+@media (prefers-reduced-motion: reduce) {
+  body::before,
+  body::after {
+    animation: none;
   }
 }
